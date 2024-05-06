@@ -1,0 +1,101 @@
+FSK Modulation :
+
+M = 4; freqsep = 8; nsamp = 8; Fs = 32;
+x = randint(1000,1,M); 
+y = fskmod(x,M,freqsep,nsamp,Fs); 
+ly = length(y);
+freq = [-Fs/2 : Fs/ly : Fs/2 - Fs/ly];
+Syy = 10*log10(fftshift(abs(fft(y))));
+plot(freq,Syy)
+
+**********************************************
+FSK Demodulation:
+
+M = 2; k = log2(M);
+EbNo = 5;
+Fs = 16; nsamp = 17; freqsep = 8;
+msg = randint(5000,1,M); 
+txsig = fskmod(msg,M,freqsep,nsamp,Fs); 
+msg_rx = awgn(txsig,EbNo+10*log10(k)-10*log10(nsamp),...
+ 'measured',[],'dB'); 
+msg_rrx = fskdemod(msg_rx,M,freqsep,nsamp,Fs); 
+[num,BER] = biterr(msg,msg_rrx) 
+BER_theory = berawgn(EbNo,'fsk',M,'noncoherent')
+************************************************
+PSK Modulation:
+clc;
+close all;
+clear all;
+M=16;
+x=[0:M-1];
+scatterplot(modulate(modem.pskmod(M),x));
+**********************************************
+PSK Demodulation:
+len = 10000; 
+M = 16; 
+msg = randint(len,1,M); 
+txpsk = pskmod(msg,M);
+phasenoise = randn(len,1)*.015;
+rxpsk = txpsk.*exp(j*2*pi*phasenoise);
+scatterplot(rxpsk); title('Noisy PSK Scatter Plot')
+recovpsk = pskdemod(rxpsk,M);
+numerrs_psk = symerr(msg,recovpsk)
+*********************************************
+DPSK MODULATION
+M = 4; 
+x = randint(500,1,M,13); 
+y = dpskmod(x,M,pi/8); 
+plot(y) 
+*********************************************
+DPSK DEMODULATION
+M = 4; 
+x = randint(1000,1,M); 
+y = dpskmod(x,M); 
+z = dpskdemod(y,M); 
+s1 = symerr(x,z) 
+s2 = symerr(x(2:end),z(2:end)) 
+********************************************
+ASK MODULATION
+clear; 
+clc; 
+b = input('Enter the Bit stream \n '); %b = [0 1 0 1 1 1 0]; 
+n = length(b); 
+t = 0:.01:n; 
+x = 1:1:(n+1)*100; 
+for i = 1:n 
+for j = i:.1:i+1 
+bw(x(i*100:(i+1)*100)) = b(i); 
+end 
+end 
+bw = bw(100:end); 
+sint = sin(2*pi*t); 
+st = bw.*sint; 
+subplot(3,1,1) 
+plot(t,bw) 
+grid on ; axis([0 n -2 +2]) 
+subplot(3,1,2) 
+plot(t,sint) 
+grid on ; axis([0 n -2 +2]) 
+subplot(3,1,3) 
+plot(t,st) 
+grid on ; axis([0 n -2 +2])
+32
+***********************************************
+ASK Demodulation 
+t1=0;t2=Tb 
+for i=1:N 
+t=[t1:Tb/100:t2] 
+%correlator 
+x=sum(c.*ask_sig(i,:)); 
+%decision device 
+if x>0 
+demod(i)=1; 
+else 
+demod(i)=0; 
+end 
+t1=t1+(Tb+.01); 
+t2=t2+(Tb+.01); 
+end 
+%plot demodulated binary data bits 
+subplot(5,1,5); stem(demod); 
+title('ASK demodulated signal'); xlabel('n--->');ylabel('b(n)');
